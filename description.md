@@ -1,8 +1,8 @@
 
 
-这篇文章是笔者在开发App过程中发现的一些内存问题, 然后学习了YYKit框架时候也发现了图片的缓存处理的不够得当. 以下内容是笔者在开发中做了一些实验以及总结. 如有错误望即时提出, 笔者会第一时间改正.
+这篇文章是笔者在开发App过程中发现的一些内存问题, 然后学习了YYKit框架时候也发现了图片的缓存处理的<del>不够得当</del> (YYKit 作者联系了我, 说明了YYKit重写imageNamed:的目的不是为了内存管理, 而是增加兼容性, 同时也是为了YYKit中的动画服务). 以下内容是笔者在开发中做了一些实验以及总结. 如有错误望即时提出, 笔者会第一时间改正.
 
-文章的前篇主要是对两种不同的`UIImage`工厂方法的分析, 以及对 YYKit 中的 YYImage 的分析. 罗列出这些工厂方法的内存管理的优缺点. 
+文章的前篇主要是对两种不同的`UIImage`工厂方法的分析, <del>以及对 YYKit 中的 YYImage 的分析</del>. 罗列出这些工厂方法的内存管理的优缺点. 
 
 文章的后篇是本文要说明的重点, 如何结合两种工厂方法的优点做更进一步的节约内存的管理.
 
@@ -121,13 +121,15 @@ ImageAssets 最主要的使用场景就是 icon 类的图片, 一般 icon 类的
 
 当一个 icon 在多个地方需要被显示的时候, 其对应的`UIImage`对象只会被创建一次, 而且多个地方的 icon 都将会共用一个 `UIImage` 对象. 减少沙盒的读取操作.
 
-# YYImage 的内存处理
+# <del>YYImage 的内存处理</del>
 
-YYImage 的核心就是学习`imageWithContentsOfFile:`的方法原理去实现`imageNamed:`方法. 达到`imageNamed:`方法中没有缓存功能, 最终使得不需要图片的时候即可销毁图片对象. 
+***由于YYImage的目的并不是为了关闭缓存, 所以此段没有分析的意义, 现已删除.***
 
-## imageWithContentsOfFile 代替 imageNamed
+<del>YYImage 的核心就是学习`imageWithContentsOfFile:`的方法原理去实现`imageNamed:`方法. 达到`imageNamed:`方法中没有缓存功能, 最终使得不需要图片的时候即可销毁图片对象. </del>
 
-首先看 YYImage 的代码:
+## <del>imageWithContentsOfFile 代替 imageNamed</del>
+
+<del>首先看 YYImage 的代码:</del>
 
 ```objc
 + (YYImage *)imageNamed:(NSString *)name {
@@ -160,9 +162,10 @@ YYImage 的核心就是学习`imageWithContentsOfFile:`的方法原理去实现`
 }
 ```
 
-从代码可以看出 `[YYImage imageNamed:]`这个方法底层是利用通过一定的计算获取到最佳尺寸, 然后枚举图片匹配图片文件名, 拼接成路径后利用`NSData`创建出`UIImage`. 本质上和`imageWithContentsOfFile:`没有啥区别.
 
-# UIImage 与 YYImage 的内存问题
+<del>从代码可以看出 `[YYImage imageNamed:]`这个方法底层是利用通过一定的计算获取到最佳尺寸, 然后枚举图片匹配图片文件名, 拼接成路径后利用`NSData`创建出`UIImage`. 本质上和`imageWithContentsOfFile:`没有啥区别.</del>
+
+# UIImage <del>与 YYImage</del> 的内存问题
 ### Resource 的缺点
 
 当我们需要图片的时候就会去沙盒中读取这个图片文件, 转换成`UIImage`对象来使用. 现在假设一种场景:
@@ -172,7 +175,7 @@ YYImage 的核心就是学习`imageWithContentsOfFile:`的方法原理去实现`
 
 通过代码分析就可以知道 Resource 这个方式在这个情景下会占用 **5kb/个 X 7个 = 35kb** 内存. 然而, 在 ImageAssets 方式下, 全部取自字典缓存中的`UIImage`, 无论有几处显示图片, 都只会占用 **5kb/个 X 1个 = 5kb** 内存. 此时 Resource 占用内存将会更大.
 
-由于 YYImage 的核心就是利用`imageWithContentsOfFile:`代替`imageNamed:`, 所以这也是 YYImage 的缺陷之处
+<del>由于 YYImage 的核心就是利用`imageWithContentsOfFile:`代替`imageNamed:`, 所以这也是 YYImage 的缺陷之处</del>
 
 ### ImageAssets 的缺点
 
