@@ -1,5 +1,7 @@
 # HXImage
 
+To save memory.
+
 如有疑问请: [@冷秋](http://www.weibo.com/magicunique) [@Forever波波哥哥](http://weibo.com/u/2336714285)
 
 ## Usage 使用
